@@ -145,3 +145,6 @@ The production files will be in the `dist` directory.
 - All files must be served from the same domain
 - Ensure your web server is configured to serve `.txt` files correctly
 
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
