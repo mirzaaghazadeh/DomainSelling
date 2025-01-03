@@ -56,7 +56,7 @@ For developers who want to customize and build the project.
 1. Clone the repository:
 ```bash
 git clone <repository-url>
-cd domain-for-sale
+cd DomainSelling
 ```
 
 2. Install dependencies:
@@ -134,7 +134,7 @@ The production files will be in the `dist` directory.
     - GitHub Pages
 
 2. **Traditional Web Hosting**
-    - Upload via FTP/SFTP
+    - Upload dist folder contents via FTP/SFTP
     - Set index.html as default document
 
 
