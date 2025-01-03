@@ -30,7 +30,7 @@ For users who just want to use the pre-built files.
 2. Extract the `dist` folder
 3. Configure your domain:
     - Open `price.txt` and update the price
-    - Open `index.html` and search for `me@navid.tr` to replace with your email
+    - Open `main-[hash].js` and search for `me@navid.tr` to replace with your email
 
 4. Upload the contents of the `dist` folder to your web hosting:
    ```
