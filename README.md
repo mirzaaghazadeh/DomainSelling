@@ -1,7 +1,11 @@
-# Domain For Sale Landing Page
+# Domain For Sale Landing Page 
+
 ![Domain Sale Preview](https://i.ibb.co/QCfB7Xz/Screenshot-2025-01-03-at-12-15-26-PM.png)
 
 A modern, responsive landing page for domains that are for sale. Built with React, TypeScript, and Tailwind CSS.
+## Preview
+For a live preview, visit [Here](https://domainselling.navid.tr/)
+
 
 ## Features
 
