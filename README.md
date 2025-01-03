@@ -5,14 +5,15 @@ A modern, responsive landing page for domains that are for sale. Built with Reac
 
 ## Features
 
+- ✅ Get Domain Name From URL 
 - 🌐 Clean, professional design
 - 🎨 Smooth animations and transitions
-- 📱 Fully responsive layout
-- 🔄 Animated browser title
-- 🌍 Bilingual support (English/Persian)
-- 📧 One-click email reveal and copy
-- 💰 Dynamic price display
-- 🎯 Automatic language detection for Iranian visitors
+- 📱 Fully responsive layout (mobile-friendly)
+- 🔄 Animated browser title (for attention)
+- 🌍 Bilingual support (English/Persian) 
+- 📧 One-click email reveal and copy (no email obfuscation)
+- 💰 Dynamic price display (configurable via `price.txt` for easy updates without code changes)
+- 🎯 Automatic language detection for Iranian visitors (Detection With Cloudflare Header : `CF-IPCountry`)
 - ✨ Gentle animations for better user experience
 
 
