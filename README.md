@@ -68,6 +68,7 @@ npm install
 ```bash
 echo "$YOUR_PRICE" > public/price.txt
 ```
+Or Create this manually (`public/price.txt`) and write your price in it.
 
 4. Update the contact email:
     - Open `src/App.tsx`
