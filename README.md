@@ -109,7 +109,7 @@ The production files will be in the `dist` directory.
 ├── public/
 │   └── price.txt           # Domain price configuration
 ├── src/
-│   ├── components/         # React components
+│   ├── components/        # React components
 │   ├── hooks/             # Custom React hooks
 │   ├── utils/             # Utility functions
 │   ├── App.tsx            # Main application component
