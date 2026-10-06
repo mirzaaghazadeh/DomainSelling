@@ -1,0 +1,229 @@
+---
+const EMAIL = 'hi@navid.tr';
+
+// Parked domains all point at this one app, so read the domain from the request host.
+const rawHost =
+  Astro.request.headers.get('x-forwarded-host') ?? Astro.request.headers.get('host') ?? '';
+let domain = rawHost.split(',')[0].trim().toLowerCase().replace(/:\d+$/, '').replace(/^www\./, '');
+
+// Local testing: http://localhost:4321/?domain=example.com
+const isLocal = !domain || domain === 'localhost' || /^[\d.]+$/.test(domain);
+if (isLocal) domain = Astro.url.searchParams.get('domain')?.trim().toLowerCase() || 'yourdomain.com';
+
+const dot = domain.lastIndexOf('.');
+const name = dot > 0 ? domain.slice(0, dot) : domain;
+const tld = dot > 0 ? domain.slice(dot) : '';
+const subject = encodeURIComponent(`Offer for ${domain}`);
+---
+
+<!doctype html>
+<html lang="en" dir="ltr" data-lang="en">
+  <head>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;600;800&display=swap" rel="stylesheet" />
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{domain} is for sale</title>
+    <meta name="description" content={`${domain} is for sale. Send your offer to ${EMAIL}, we reply within 4 hours.`} />
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 100 100%27><text y=%27.9em%27 font-size=%2790%27>🏷️</text></svg>" />
+  </head>
+  <body>
+    <main>
+      <p class="badge">
+        <span class="dot"></span>
+        <span class="bi"><span class="en">For sale</span><span class="fa" lang="fa" dir="rtl">برای فروش</span></span>
+      </p>
+
+      <h1 class="domain" dir="ltr">{name}<span class="tld">{tld}</span></h1>
+      <p class="lead bi">
+        <span class="en">This domain is available for purchase.</span>
+        <span class="fa" lang="fa" dir="rtl">این دامنه برای خرید در دسترس است.</span>
+      </p>
+
+      <div class="card">
+        <p class="cta bi">
+          <span class="en">Send your offer</span>
+          <span class="fa" lang="fa" dir="rtl">پیشنهاد خود را ارسال کنید</span>
+        </p>
+        <button type="button" class="copy" id="copy" data-state="idle" data-email={EMAIL} aria-label={`Copy email address ${EMAIL}`}>
+          <span class="addr" dir="ltr">{EMAIL}</span>
+          <span class="hint bi" aria-live="polite">
+            <span class="en">
+              <span class="s s-idle">Click to copy</span><span class="s s-ok">Copied ✓</span><span class="s s-fail">Press ⌘/Ctrl+C</span>
+            </span>
+            <span class="fa" lang="fa" dir="rtl">
+              <span class="s s-idle">برای کپی کلیک کنید</span><span class="s s-ok">کپی شد ✓</span><span class="s s-fail">کپی دستی کنید</span>
+            </span>
+          </span>
+        </button>
+        <p class="reply bi">
+          <span class="en">We reply in under 4 hours.</span>
+          <span class="fa" lang="fa" dir="rtl">کمتر از ۴ ساعت پاسخ می‌دهیم.</span>
+        </p>
+      </div>
+
+      <a class="mail bi" href={`mailto:${EMAIL}?subject=${subject}`}>
+        <span class="en">or open in your mail app</span>
+        <span class="fa" lang="fa" dir="rtl">یا در برنامه ایمیل باز کنید</span>
+      </a>
+    </main>
+
+    <script>
+      const btn = document.getElementById('copy') as HTMLButtonElement;
+      let timer: number;
+
+      // Alternate English / Persian every 4 seconds (CSS handles the fade).
+      const root = document.documentElement;
+      const fa = document.querySelectorAll('.bi > .fa');
+      const en = document.querySelectorAll('.bi > .en');
+      setInterval(() => {
+        const toFa = root.dataset.lang !== 'fa';
+        root.dataset.lang = toFa ? 'fa' : 'en';
+        root.lang = toFa ? 'fa' : 'en';
+        root.dir = toFa ? 'rtl' : 'ltr';
+        fa.forEach((el) => el.setAttribute('aria-hidden', String(!toFa)));
+        en.forEach((el) => el.setAttribute('aria-hidden', String(toFa)));
+      }, 4000);
+      fa.forEach((el) => el.setAttribute('aria-hidden', 'true'));
+
+      async function copy(text: string) {
+        try {
+          await navigator.clipboard.writeText(text);
+        } catch {
+          // Fallback for insecure contexts / older browsers
+          const ta = document.createElement('textarea');
+          ta.value = text;
+          ta.style.position = 'fixed';
+          ta.style.opacity = '0';
+          document.body.appendChild(ta);
+          ta.select();
+          const ok = document.execCommand('copy');
+          ta.remove();
+          if (!ok) throw new Error('copy failed');
+        }
+      }
+
+      btn.addEventListener('click', async () => {
+        clearTimeout(timer);
+        try {
+          await copy(btn.dataset.email!);
+          btn.classList.add('done');
+          btn.dataset.state = 'ok';
+        } catch {
+          btn.dataset.state = 'fail';
+          const r = document.createRange();
+          r.selectNodeContents(btn.querySelector('.addr')!);
+          const s = getSelection()!;
+          s.removeAllRanges();
+          s.addRange(r);
+        }
+        timer = window.setTimeout(() => {
+          btn.classList.remove('done');
+          btn.dataset.state = 'idle';
+        }, 2000);
+      });
+    </script>
+  </body>
+</html>
+
+<style is:global>
+  :root {
+    --bg: #f6f5f1;
+    --fg: #14130f;
+    --muted: #6b6960;
+    --card: #ffffff;
+    --line: #e4e1d8;
+    --accent: #1f9d55;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0e0e0c;
+      --fg: #f2f0ea;
+      --muted: #9a978c;
+      --card: #171714;
+      --line: #2a2924;
+      --accent: #3ddc84;
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    min-height: 100dvh;
+    display: grid;
+    place-items: center;
+    padding: 24px 16px;
+    background: var(--bg);
+    color: var(--fg);
+    font-family: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  main { width: 100%; max-width: 640px; text-align: center; }
+
+  /* Bilingual slot: both languages share one grid cell so the layout never jumps. */
+  .bi { display: inline-grid; justify-items: center; }
+  p.bi { display: grid; }
+  .bi > span { grid-area: 1 / 1; transition: opacity .6s ease; }
+  .bi > .fa { font-family: 'Vazirmatn', Tahoma, system-ui, sans-serif; opacity: 0; pointer-events: none; }
+  html[data-lang='fa'] .bi > .en { opacity: 0; pointer-events: none; }
+  html[data-lang='fa'] .bi > .fa { opacity: 1; pointer-events: auto; }
+
+  .s { display: none; }
+  .copy[data-state='idle'] .s-idle,
+  .copy[data-state='ok'] .s-ok,
+  .copy[data-state='fail'] .s-fail { display: inline; }
+  .hint .fa { text-transform: none; letter-spacing: 0; font-size: 13px; }
+
+  .badge {
+    display: inline-flex; align-items: center; gap: 8px;
+    margin: 0 0 20px; padding: 6px 14px;
+    border: 1px solid var(--line); border-radius: 999px;
+    font-size: 13px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase;
+    color: var(--muted);
+  }
+  .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); animation: pulse 2s infinite; }
+  @keyframes pulse { 50% { opacity: .35; } }
+
+  .domain {
+    margin: 0;
+    font-size: clamp(2.2rem, 10vw, 4.5rem);
+    line-height: 1.05;
+    font-weight: 800;
+    letter-spacing: -.03em;
+    overflow-wrap: anywhere;
+  }
+  .tld { color: var(--muted); font-weight: 600; }
+  .lead { margin: 14px 0 36px; font-size: 1.1rem; color: var(--muted); }
+
+  .card {
+    padding: 28px 20px;
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 20px;
+    box-shadow: 0 1px 2px rgb(0 0 0 / .04), 0 12px 32px rgb(0 0 0 / .06);
+  }
+  .cta { margin: 0 0 14px; font-size: 1.15rem; font-weight: 700; }
+
+  .copy {
+    display: inline-flex; flex-direction: column; align-items: center; gap: 4px;
+    max-width: 100%;
+    padding: 14px 28px;
+    font: inherit; color: inherit;
+    background: var(--bg);
+    border: 1.5px dashed var(--line);
+    border-radius: 14px;
+    cursor: pointer;
+    transition: border-color .15s, transform .1s;
+  }
+  .copy:hover { border-color: var(--accent); }
+  .copy:active { transform: scale(.98); }
+  .copy:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+  .copy.done { border-style: solid; border-color: var(--accent); }
+  .addr { font-size: clamp(1.25rem, 6vw, 1.75rem); font-weight: 700; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; overflow-wrap: anywhere; }
+  .hint { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; }
+  .copy.done .hint { color: var(--accent); }
+
+  .reply { margin: 16px 0 0; color: var(--muted); font-size: .95rem; }
+  .mail { display: inline-grid; margin-top: 22px; font-size: 13px; color: var(--muted); }
+  .mail:hover { color: var(--fg); }
+</style>
